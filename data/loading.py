@@ -1,9 +1,8 @@
-from collections import Collection
 from pathlib import Path
 from typing import Tuple
 
 
-def load(filepath: Path) -> Tuple[Collection, Collection]:
+def load(filepath: Path) -> Tuple[Tuple[Tuple[float]], Tuple[float]]:
     assert filepath.exists() and filepath.is_file()
 
     with filepath.open() as file:
