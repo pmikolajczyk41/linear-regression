@@ -1,8 +1,10 @@
+from pathlib import Path
 from typing import Tuple
 
+from data import Matrix, Vector, vector
+from data.basis_functions import BasisFunction, second_degree_basis_functions
+from data.loading import load
 from data.normalization import ScalingType, normalize
-
-Matrix = Tuple[Tuple[float]]
 
 
 class X:
@@ -24,8 +26,20 @@ class X:
         return self._data
 
     def by_feature(self) -> Matrix:
-        return tuple(zip(*self._data))
+        return vector(zip(*self._data))
 
     def normalize(self, scaling_type: ScalingType) -> 'X':
         normalized_vectors = map(lambda f: normalize(f, scaling_type), self.by_feature())
-        return X(tuple(zip(*normalized_vectors)))
+        return X(vector(zip(*normalized_vectors)))
+
+    def convert(self, basis_functions: Tuple[BasisFunction, ...]) -> 'X':
+        sample_mapper = lambda s: vector(map(lambda bf: bf(s), basis_functions))
+        samples = map(lambda sample: sample_mapper(sample), self._data)
+        return X(vector(samples))
+
+
+if __name__ == '__main__':
+    x, y = load(Path('../halas.data'))
+    x = X(x)
+    print(x.by_sample())
+    print(x.convert(second_degree_basis_functions(5)).by_sample())
