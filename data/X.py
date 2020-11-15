@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Tuple
 
-from data import Matrix, Vector, vector
+from data import Matrix, vector
 from data.basis_functions import BasisFunction, second_degree_basis_functions
 from data.loading import load
 from data.normalization import ScalingType, normalize
