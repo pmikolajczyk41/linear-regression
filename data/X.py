@@ -36,10 +36,3 @@ class X:
         sample_mapper = lambda s: vector(map(lambda bf: bf(s), basis_functions))
         samples = map(lambda sample: sample_mapper(sample), self._data)
         return X(vector(samples))
-
-
-if __name__ == '__main__':
-    x, y = load(Path('../halas.data'))
-    x = X(x)
-    print(x.by_sample())
-    print(x.convert(second_degree_basis_functions(5)).by_sample())

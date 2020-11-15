@@ -1,7 +1,7 @@
-from functools import reduce
-from typing import Tuple
+from functools import reduce, partial
+from typing import Tuple, Callable
 
-from cost import _mult_vv, _signum
+from cost import _mult_vv, _signum, Regularization, _sum_vv
 from data import Vector, Scalar, vector
 
 
@@ -20,5 +20,11 @@ def ridge(theta: Vector, lmb: Scalar) -> Tuple[Scalar, Vector]:
 def elastic_net(theta: Vector, lmb1: Scalar, lmb2: Scalar) -> Tuple[Scalar, Vector]:
     cl, gl = lasso(theta, lmb1)
     cr, gr = ridge(theta, lmb2)
-    grad = vector(map(lambda l, r: l + r, zip(gl, gr)))
-    return cl + cr, grad
+    return cl + cr, _sum_vv(gl, gr)
+
+
+def parametrize(reg: Callable[[Vector, ...], Tuple[Scalar, Vector]], *parameters, **named_parameters) -> Regularization:
+    def parametrized(theta: Vector) -> Tuple[Scalar, Vector]:
+        return reg(theta, *parameters, **named_parameters)
+
+    return parametrized
