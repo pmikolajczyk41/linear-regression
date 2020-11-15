@@ -1,7 +1,7 @@
 from itertools import combinations_with_replacement as pairs
 from typing import Callable, Tuple
 
-from data import Vector, Scalar
+from algebra import Vector, Scalar
 
 BasisFunction = Callable[[Vector], Scalar]
 

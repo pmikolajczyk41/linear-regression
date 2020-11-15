@@ -1,7 +1,7 @@
 from enum import Enum
 from statistics import mean, stdev
 
-from data import Vector, vector
+from algebra import Vector, vector
 
 
 def _min_max_1(data: Vector) -> Vector:
@@ -26,4 +26,4 @@ class ScalingType(Enum):
 
 
 def normalize(data: Vector, scaling_type: ScalingType) -> Vector:
-    return scaling_type.value(data)
+    return scaling_type(data)

@@ -1,9 +1,8 @@
-from pathlib import Path
+from itertools import repeat
 from typing import Tuple
 
-from data import Matrix, vector
-from data.basis_functions import BasisFunction, second_degree_basis_functions
-from data.loading import load
+from algebra import Matrix, vector
+from data.basis_functions import BasisFunction
 from data.normalization import ScalingType, normalize
 
 
@@ -36,3 +35,8 @@ class X:
         sample_mapper = lambda s: vector(map(lambda bf: bf(s), basis_functions))
         samples = map(lambda sample: sample_mapper(sample), self._data)
         return X(vector(samples))
+
+    def append_ones(self) -> 'X':
+        ones = vector(repeat(1., self._m))
+        extended = self.by_feature() + (ones,)
+        return X(vector(zip(*extended)))

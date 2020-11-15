@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Tuple
 
-from data import Matrix, Vector, Scalar
+from algebra import Matrix, Vector, Scalar
 
 
 def load(filepath: Path) -> Tuple[Matrix, Vector]:
