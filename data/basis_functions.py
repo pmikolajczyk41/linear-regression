@@ -1,5 +1,4 @@
 from itertools import combinations_with_replacement as pairs
-from itertools import combinations_with_replacement as pairs
 from typing import Callable, Iterable
 
 from algebra import Vector, Scalar
