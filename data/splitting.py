@@ -11,7 +11,14 @@ def split2(x: Matrix, y: Vector, p: float) -> Tuple[Tuple[Matrix, Vector], Tuple
 
     prefix_size = int(p * len(domain))
     prefix, suffix = domain[:prefix_size], domain[prefix_size:]
-    return tuple(zip(*prefix)), tuple(zip(*suffix))
+
+    first, second = tuple(zip(*prefix)), tuple(zip(*suffix))
+    if len(first) == 0:
+        first = (tuple(), tuple())
+    if len(second) == 0:
+        second = (tuple(), tuple())
+
+    return first, second
 
 
 def split3(x: Matrix, y: Vector, p1: float, p2: float) -> \

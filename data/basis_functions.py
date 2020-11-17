@@ -8,8 +8,9 @@ BasisFunction = Callable[[Vector], Scalar]
 
 class BasisFunctions(tuple):
     def __new__(cls, description: str, functions: Iterable[BasisFunction]):
-        cls.__description__ = description
-        return tuple.__new__(BasisFunctions, functions)
+        newborn = tuple.__new__(BasisFunctions, functions)
+        newborn.__description__ = description
+        return newborn
 
 
 def id_basis_functions(nfeatures: int) -> BasisFunctions:

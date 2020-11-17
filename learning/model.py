@@ -1,9 +1,10 @@
+from copy import copy
 from functools import partial
 from itertools import repeat
 from statistics import mean
 from typing import NoReturn, Iterable
 
-from algebra import Vector, vector, mult_vs, sum_vv
+from algebra import Vector, vector, mult_vs, sum_vv, mult_mv
 from cost import BasicCost, UnparameterizedRegularization, Cost
 from cost.cost import make_cost
 from cost.regularization import parametrize
@@ -14,7 +15,7 @@ from learning.stop import StopCondition
 
 
 class Model:
-    stop_condition = StopCondition(None, 0.000001, 2000)
+    stop_condition = StopCondition(None, 0.000001, 200)
 
     def __init__(self, basic_cost: BasicCost,
                  regularization: UnparameterizedRegularization,
@@ -54,11 +55,25 @@ class Model:
         if self._parameters is None:
             raise RuntimeError('Parameters not set yet')
 
-        x.convert(self._basis_functions)
+        x = x.convert(self._basis_functions)
         reg = parametrize(self._regularization, self._parameters.regularization_parameters)
         cost = make_cost(self._basic_cost, reg)
 
-        return self._train(x, y, cost, self._parameters.gradient_step, self._parameters.init_theta)
+        self._theta = self._train(x, y, cost, self._parameters.gradient_step, self._parameters.init_theta)
+        return copy(self._theta)
+
+    def predict(self, x: X) -> Vector:
+        if self._theta is None:
+            raise RuntimeError('Not trained yet')
+        x = x.convert(self._basis_functions).append_ones()
+        return mult_mv(x.by_sample(), self._theta)
+
+    def error(self, x: X, y: Vector) -> float:
+        if self._theta is None:
+            raise RuntimeError('Not trained yet')
+        x = x.convert(self._basis_functions).append_ones()
+        error, _ = self.cost()(x, self._theta, y)
+        return error / len(y)
 
     def _train(self, x: X, y: Vector, cost: Cost, step: float, init_theta: Vector = None) -> Vector:
         x = x.append_ones()
@@ -80,7 +95,7 @@ class Model:
             stop_condition, stop = stop_condition.update(gradient, error)
             if stop:
                 break
-            if stop_condition._iterations % 100 == 0:
+            if stop_condition._iterations % 1000 == 0:
                 print(error)
         return theta
 
@@ -90,3 +105,15 @@ class Model:
 
         regularization = parametrize(self._regularization, self._parameters.regularization_parameters)
         return make_cost(self._basic_cost, regularization)
+
+    def __repr__(self):
+        props = {
+            'Basic cost function': self._basic_cost.__name__,
+            'Regularization'     : self._regularization.__name__,
+            'Basis functions'    : self._basis_functions.__description__,
+        }
+        if self._parameters is not None:
+            props['Gradient step'] = str(self._parameters.gradient_step),
+            props['Regularization parameters'] = str(self._parameters.regularization_parameters)
+
+        return str(props)
