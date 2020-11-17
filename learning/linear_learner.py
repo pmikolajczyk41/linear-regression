@@ -1,26 +1,28 @@
 from itertools import repeat
-from pathlib import Path
 from statistics import mean
 
 from algebra import Vector, vector, mult_vs, sum_vv
 from cost import Cost
-from cost.basic_cost import squared_error
-from cost.cost import make_cost
-from cost.regularization import ridge, parametrize
 from data.X import X
-from data.loading import load
-from data.normalization import ScalingType
+from learning.parameters import Parameters
 from learning.stop import StopCondition
 
 
 class LinearLearner:
+    def train(self, x: X, y: Vector, stop_condition: StopCondition, params: Parameters):
+        x = x.convert(params.basis_functions)
+        cost = params.cost()
+
+        theta = self._train(x, y, cost, stop_condition, params.gradient_step, params.init_theta)
+        return theta
+
     @staticmethod
-    def learn(x: X,
-              y: Vector,
-              cost: Cost,
-              stop_condition: StopCondition,
-              step: float,
-              init_theta: Vector = None) -> Vector:
+    def _train(x: X,
+               y: Vector,
+               cost: Cost,
+               stop_condition: StopCondition,
+               step: float,
+               init_theta: Vector = None) -> Vector:
         x = x.append_ones()
         m = x.nsamples()
 
@@ -37,17 +39,8 @@ class LinearLearner:
             theta = sum_vv(theta, mult_vs(gradient, -step))
 
             stop_condition, stop = stop_condition.update(gradient, error)
-            print(error)
             if stop:
                 break
-        print('Done')
+            if stop_condition._iterations % 100 == 0:
+                print(error)
         return theta
-
-
-if __name__ == '__main__':
-    x, y = load(Path('../noise.data'))
-    x = X(x).normalize(ScalingType.MIN_MAX_1)
-    regularization = parametrize(ridge, 0.4)
-    cost = make_cost(squared_error, regularization)
-    stop_condition = StopCondition(None, None, 10000)
-    LinearLearner().learn(x, y, cost, stop_condition, 0.1)

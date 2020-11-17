@@ -29,4 +29,6 @@ def parametrize(reg: Callable[[Vector, Any], Tuple[Scalar, Vector]], *parameters
     def parametrized(theta: Vector) -> Tuple[Scalar, Vector]:
         return reg(theta, *parameters, **named_parameters)
 
+    parametrized.__regularization__ = reg
+    parametrized.__parameters__ = parameters
     return parametrized
