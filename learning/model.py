@@ -44,7 +44,7 @@ class Model:
 
         evaluated = map(lambda paired: evaluate(paired), zip(trained, parameters))
 
-        _, _, params = max(evaluated, key=lambda e: e[0])
+        _, _, params = min(evaluated, key=lambda e: e[0])
         self._parameters = params
 
     def set_stop_condition(self, stop_condition: StopCondition) -> NoReturn:
@@ -83,3 +83,10 @@ class Model:
             if stop_condition._iterations % 100 == 0:
                 print(error)
         return theta
+
+    def cost(self) -> Cost:
+        if self._parameters is None:
+            raise RuntimeError('Parameters not set yet')
+
+        regularization = parametrize(self._regularization, self._parameters.regularization_parameters)
+        return make_cost(self._basic_cost, regularization)
